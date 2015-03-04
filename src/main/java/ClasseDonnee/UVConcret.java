@@ -2,7 +2,7 @@ package ClasseDonnee;
 
 import java.util.List;
 
-public class UV {
+public class UVConcret {
 	
 		
 		private String nom;

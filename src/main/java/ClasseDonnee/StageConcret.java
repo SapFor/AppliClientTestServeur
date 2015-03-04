@@ -9,17 +9,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class StageConcret {
 
 			
-		private String uv;
+	public String uv;
 		//private int directeur;
-		private String nomStage;
-		private Calendar date;
-		private Calendar finCandidature;
-		private String lieu;
-		private String infos;
-		private List<String> candidats;
-		private List<String> accepte;
-		private List<String> refuse;
-		private List<String> attente;
+	public String nomStage;
+	public Calendar date;
+	public Calendar finCandidature;
+	public String lieu;
+	public String infos;
+	public List<String> candidats;
+	public List<String> accepte;
+	public List<String> refuse;
+	public List<String> attente;
 		
 		
 		/*
