@@ -3,6 +3,8 @@ package ClasseDonnee;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement
 public class StageConcret {
 
