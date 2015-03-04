@@ -113,6 +113,9 @@ public class clientApp {
 			firstconnect();
 			
 			List<String> maSession = getListSessionDirecteur();
+			for(int i=0;i<maSession.size();i++){
+				System.out.println(maSession.get(i));
+			}
 			
 			//List<String> mesCandidats = getListCandidatDirecteur(maSession);
 		}
