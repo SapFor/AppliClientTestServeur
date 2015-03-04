@@ -3,7 +3,8 @@ package ClasseDonnee;
 import java.util.Calendar;
 import java.util.List;
 
-public class Stage {
+@XmlRootElement
+public class StageConcret {
 
 			
 		private String uv;
