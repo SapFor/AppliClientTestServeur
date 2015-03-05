@@ -197,8 +197,7 @@ public class clientApp {
 			StageConcret domp = service.path("stage/FDF1broceliande15juin15").accept(MediaType.APPLICATION_JSON).get(new GenericType<StageConcret>(){});
 			
 			List<String> candid=new ArrayList<String>();
-			candid.add("");
-			
+						
 			List<String> acc=new ArrayList<String>();
 			acc.add("5");
 			acc.add("3");
