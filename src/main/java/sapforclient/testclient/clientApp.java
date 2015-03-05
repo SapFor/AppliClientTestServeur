@@ -1,23 +1,24 @@
 package sapforclient.testclient;
 
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
-
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+
 import ClasseDonnee.*;
+
+
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.GenericType;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 /*
 * Created with Eclipse.
@@ -27,38 +28,70 @@ import ClasseDonnee.*;
 
 public class clientApp {
 	
-		private static PompierConcret moi;
+		public static PompierConcret moi;
+		private static int idSession;
 		private static ClientConfig config;
-		private static Client client; 
+		private static Client client;
 		private static WebResource service;
-	
 		//private List<?> abstractList;
 		
+		// Get server URI
 		private static URI getBaseURI() {
 			URI uri = UriBuilder.fromUri("http://localhost:8080/SAPFORServer/webresources/serveur/").build();
 			return uri;
 		}
 		
+		// First connection with access to the service object and initialize the fireman session
 		public static void firstconnect(){
-			// Get access to the service object
-			config = new DefaultClientConfig();
-			client = Client.create(config);
-			service = client.resource(getBaseURI());
+			
 			moi = service.path("1/12345").accept(MediaType.APPLICATION_JSON).get(new GenericType<PompierConcret>(){}); 
-			System.out.println(moi.getIdSession());
 		}
 		
-		public static WebResource connect(){
-			// Get access to the service object
+		// Get idSession by login and password
+		public static String login(int idPompier,String mdp){
 			config = new DefaultClientConfig();
 			client = Client.create(config);
 			service = client.resource(getBaseURI());
-			return service;
+			String defPath = idPompier + "/" + mdp;
+			moi = service.path(defPath).accept(MediaType.APPLICATION_JSON).get(new GenericType<PompierConcret>(){});
+			idSession = moi.getIdSession();
+			
+			if (idSession == 999){ return "erreur"; }
+			else { return "ok";}
+		}
+		
+		// Get IdSession
+		public static int getIdSession(){ return idSession;}
+		
+		// Deconnect the session
+		public static String deconnexion(int idSession){
+			String reponse;
+			String nSession = "" + idSession;
+			reponse = service.path(nSession).accept(MediaType.APPLICATION_JSON).get(new GenericType<String>(){});
+			if(reponse.equals("OK")){
+				return "Vous etes maintenant deconnecte!";
+			}
+			else { return "erreur de deconnexion!"; }
+		}
+		
+		// Close the candidatures of a stage : associated to the "Candidater" button in the formation tab
+		public static String cloturerCandidature(String nomStage,int jour, int mois, int annee){
+			String reponse;
+			String date = jour + "/" + mois + "/" + annee;
+			reponse = service.path("directeur/" + nomStage + "/" + date).accept(MediaType.APPLICATION_JSON).get(new GenericType<String>(){});
+			if(reponse == "OK"){
+				return "date changée";
+			}
+			else { return "Problème lors du changement de date";}
 		}
 	
+		// Get list of the director stages : to put into the director tab
 		public static List<String> getListSessionDirecteur(){
 			//WebResource service = connect();
-			List<StageConcret> listSession = service.path("directeur/" + moi.getIdSession()).accept(MediaType.APPLICATION_JSON).get(new GenericType<List<StageConcret>>(){}); 
+			EncapsulationStage listSession = service.path("directeur/" + moi.getIdSession()).accept(MediaType.APPLICATION_JSON).get(new GenericType<EncapsulationStage>(){}); 
+			
+			List<StageConcret> stages=listSession.capsule;
+			
 			
 			List<String> listSess = new ArrayList();
 			Calendar dateStage;
@@ -66,21 +99,24 @@ public class clientApp {
 			String date;
 			String nomLieu;
 			String ligneSess;
-			Iterator<StageConcret> ite = listSession.iterator();
+	    	
+			Iterator<StageConcret> ite = stages.iterator();
 	    	while(ite.hasNext()){
 	    		StageConcret newLigne = ite.next();
-	    		System.out.println(newLigne.getUV());
-	    		nomUV=newLigne.getUV();
-	    		dateStage=newLigne.getDate();
-	    		date=dateStage.get(Calendar.DAY_OF_MONTH)+"/"+dateStage.get(Calendar.MONTH)+1+"/"+dateStage.get(Calendar.YEAR);
-	    		nomLieu=newLigne.getLieu();
-	    		ligneSess =  nomUV+ " " + date+ " " +nomLieu; 
-	    		listSess.add(ligneSess);
+	    						
+				nomUV = newLigne.getUV();
+				dateStage = newLigne.getDate();
+				
+				date = dateStage.get(Calendar.DAY_OF_MONTH) + "/" + (dateStage.get(Calendar.MONTH)+1) + "/" + dateStage.get(Calendar.YEAR);
+				nomLieu = newLigne.getLieu();
+	    		String ligneSess1 = nomUV + " " + date + " " + nomLieu;
+	    		listSess.add(ligneSess1);
 	    	}
 	    	return listSess;
 	    }
 	 
 	 
+	  	// Get list of director candidates for a specific session : to put into the director tab
 		public List<String> getListCandidatDirecteur(StageConcret session){
 			//WebResource service = connect();
 		 	List<String> listPompiers = new ArrayList();
@@ -98,36 +134,62 @@ public class clientApp {
 	    	}
 	    	return listPompiers;
 	    }
-	 /*
-		public static Stage postListGestionDirecteur(Stage session){
-			Stage newSession = new Stage();
+	 
+	 	// Push a updated list of candidates for a specific session to the server : "Enregistrer" button in the director tab
+		public static StageConcret postListGestionDirecteur(StageConcret session){
+			StageConcret newSession = new StageConcret();
 			
 			
 			return newSession;
 		}
 		
 		public void pushInfoServer(){
-			WebResource service = connect();
+			//WebResource service = connect();
+			
 			// Create a new list of candidates
 			//Stage newListCandidats = postListGestionDirecteur(newSession);
 			
 			// Add a new product using the POST HTTP method. managed by the Jersey framework
 			//service.path("directeur/idPompier").type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).put(new GenericType<Pompiers>(){}, newListCandidats);
 		}
-	 */
-
+	 
+	
 
 		public static void main(String[] args) {
 			
 			
-			firstconnect();
 			
+			//List<String> mesCandidats = getListCandidatDirecteur(maSession);
+			
+			List<Integer> listeId=new ArrayList<Integer>();
+			System.out.println(login(1,"12345"));
+			listeId.add(idSession);
+			System.out.println(idSession);
 			List<String> maSession = getListSessionDirecteur();
-			for(int i=0;i<maSession.size();i++){
-				System.out.println(maSession.get(i));
-			}
+			System.out.println(maSession.toString());
 			
-			//List<String> mesCandidats = getListCandidatDirecteur(0);
+			StageConcret domp = service.path("stage/FORM1brest6juin15").accept(MediaType.APPLICATION_JSON).get(new GenericType<StageConcret>(){});
+			
+			List<String> acc=new ArrayList<String>();
+			acc.add("5");
+			acc.add("3");
+			List<String> att=new ArrayList<String>();
+			att.add("2");
+			att.add("4");
+			
+			List<String> ref=new ArrayList<String>();
+			ref.add("6");
+			ref.add("7");
+			
+			
+			domp.setAccepte(acc);
+			domp.setAttente(att);
+			domp.setAttente(ref);
+			
+			service.path("directeur/selection").type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).post(new GenericType<StageConcret>(){},domp);			
+			
+			//StageConcret nouveau=service.path("stage/").accept(MediaType.APPLICATION_JSON).get(new GenericType<PompierConcret>(){});"stage/{nomStage}"
+			
 		}
 }
 
