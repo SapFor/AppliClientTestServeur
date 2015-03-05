@@ -157,6 +157,7 @@ public class clientApp {
 
 		public static void main(String[] args) {
 			
+
 			
 			
 			//List<String> mesCandidats = getListCandidatDirecteur(maSession);
@@ -165,29 +166,57 @@ public class clientApp {
 			System.out.println(login(1,"12345"));
 			listeId.add(idSession);
 			System.out.println(idSession);
-			List<String> maSession = getListSessionDirecteur();
-			System.out.println(maSession.toString());
 			
-			StageConcret domp = service.path("stage/FORM1brest6juin15").accept(MediaType.APPLICATION_JSON).get(new GenericType<StageConcret>(){});
+			System.out.println(login(2,"12345"));
+			listeId.add(idSession);
+			System.out.println(idSession);
+		
+			System.out.println(login(3,"12345"));
+			listeId.add(idSession);
+			System.out.println(idSession);
+			
+			System.out.println(login(5,"12345"));
+			listeId.add(idSession);
+			System.out.println(idSession);
+			
+			System.out.println(login(6,"12345"));
+			listeId.add(idSession);
+			System.out.println(idSession);
+			
+			for (int i=1; i<listeId.size();i++){
+			String path="candidater/"+listeId.get(i)+"/FDF1broceliande15juin15";
+			String reponse=service.path(path).accept(MediaType.APPLICATION_JSON).get(new GenericType<String>(){});
+			System.out.println(reponse);
+			}
+			
+			
+			
+			//List<String> maSession = getListSessionDirecteur();
+			//System.out.println(maSession.toString());
+			
+			StageConcret domp = service.path("stage/FDF1broceliande15juin15").accept(MediaType.APPLICATION_JSON).get(new GenericType<StageConcret>(){});
+			
+			List<String> candid=new ArrayList<String>();
+			candid.add("");
 			
 			List<String> acc=new ArrayList<String>();
 			acc.add("5");
 			acc.add("3");
+			
 			List<String> att=new ArrayList<String>();
 			att.add("2");
-			att.add("4");
 			
 			List<String> ref=new ArrayList<String>();
 			ref.add("6");
-			ref.add("7");
 			
-			
+			domp.setCandidats(candid);
 			domp.setAccepte(acc);
 			domp.setAttente(att);
-			domp.setAttente(ref);
+			domp.setRefuse(ref);
 			
-			service.path("directeur/selection").type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).post(new GenericType<StageConcret>(){},domp);			
+			String reponse=service.path("directeur/selection").type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).put(new GenericType<String>(){},domp);			
 			
+			System.out.println(reponse);
 			//StageConcret nouveau=service.path("stage/").accept(MediaType.APPLICATION_JSON).get(new GenericType<PompierConcret>(){});"stage/{nomStage}"
 			
 		}
