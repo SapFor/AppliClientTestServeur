@@ -194,13 +194,25 @@ public class clientApp {
 			//List<String> maSession = getListSessionDirecteur();
 			//System.out.println(maSession.toString());
 			
+			
+			
 			StageConcret domp = service.path("stage/FDF1broceliande15juin15").accept(MediaType.APPLICATION_JSON).get(new GenericType<StageConcret>(){});
+			PompierConcret pomp = service.path("pompier/2").accept(MediaType.APPLICATION_JSON).get(new GenericType<PompierConcret>(){});
+			
+			System.out.println(pomp.getUV().toString());
+			
+			if (pomp.getAccepte()==null) {pomp.setAccepte(new ArrayList<String>());}
+			System.out.println("Listeacceptepompier"+pomp.getAccepte().toString());
+			
 			
 			List<String> candid=new ArrayList<String>();
+			System.out.println("candidat"+candid.toString());
 						
 			List<String> acc=new ArrayList<String>();
 			acc.add("5");
 			acc.add("3");
+			
+			System.out.println("accepte"+acc.toString());
 			
 			List<String> att=new ArrayList<String>();
 			att.add("2");
